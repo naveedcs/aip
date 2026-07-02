@@ -17,7 +17,7 @@ func TestRootVersion(t *testing.T) {
 	}
 
 	got := out.String()
-	if !strings.Contains(got, "aip version 0.1.0") {
+	if !strings.Contains(got, "aip version 0.1.1") {
 		t.Fatalf("version output = %q", got)
 	}
 }
