@@ -1,0 +1,22 @@
+description: Production admin — write credentials and deploys. Use rarely.
+safety_level: admin
+auth_mode: subscription
+tools:
+  - codex
+  - claude
+secret_keys:
+  - GITHUB_TOKEN
+mcp:
+  github:
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-github"
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: "${secret:GITHUB_TOKEN}"
+  filesystem:
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "."

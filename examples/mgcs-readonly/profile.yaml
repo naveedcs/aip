@@ -1,0 +1,17 @@
+name: mgcs
+display_name: MGCS
+project_dir: ~/projects/mgcs
+safety_level: read-only
+tools:
+  codex:
+    enabled: true
+  claude:
+    enabled: true
+  gemini:
+    enabled: false
+  copilot:
+    enabled: false
+secrets:
+  provider: keychain
+  keys:
+    - GITHUB_TOKEN

@@ -1,0 +1,15 @@
+description: SEO / content — drafting and site analysis.
+safety_level: standard
+auth_mode: subscription
+tools:
+  - claude
+  - gemini
+secret_keys:
+  - GITHUB_TOKEN
+mcp:
+  filesystem:
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "."

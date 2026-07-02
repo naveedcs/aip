@@ -1,0 +1,23 @@
+description: Research / PhD — papers, notes, and code experiments.
+safety_level: standard
+auth_mode: subscription
+tools:
+  - codex
+  - gemini
+secret_keys:
+  - GITHUB_TOKEN
+  - ZOTERO_API_KEY
+mcp:
+  filesystem:
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "."
+  github:
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-github"
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: "${secret:GITHUB_TOKEN}"

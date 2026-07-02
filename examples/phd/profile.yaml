@@ -1,0 +1,18 @@
+name: phd
+display_name: PhD Research
+project_dir: ~/projects/phd
+safety_level: standard
+tools:
+  codex:
+    enabled: true
+  claude:
+    enabled: false
+  gemini:
+    enabled: true
+  copilot:
+    enabled: false
+secrets:
+  provider: keychain
+  keys:
+    - GITHUB_TOKEN
+    - ZOTERO_API_KEY
