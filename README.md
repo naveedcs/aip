@@ -6,7 +6,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/github/stars/naveedcs/aip?style=flat-square&color=111111&label=stars" alt="Stars">
-  <img src="https://img.shields.io/github/v/release/naveedcs/aip?style=flat-square&color=111111&label=release" alt="Release">
+  <img src="https://img.shields.io/badge/release-v0.1.0-111111?style=flat-square" alt="Release v0.1.0">
   <img src="https://img.shields.io/badge/tools-Codex%20%7C%20Claude%20%7C%20Gemini%20%7C%20Copilot-111111?style=flat-square" alt="Supported tools">
   <img src="https://img.shields.io/badge/license-MIT-111111?style=flat-square" alt="MIT license">
 </p>
