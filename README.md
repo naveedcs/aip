@@ -60,10 +60,10 @@ From a checkout:
 go build -o aip ./cmd/aip
 ```
 
-Homebrew, after the tap is published:
+Homebrew, using this repository as a tap:
 
 ```bash
-brew tap naveedcs/aip
+brew tap naveedcs/aip https://github.com/naveedcs/aip
 brew install aip
 ```
 
