@@ -3,6 +3,7 @@ package tools
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -103,6 +104,43 @@ func TestDetectSkipsGeneratedAIPShimAndReportsLaterRealTool(t *testing.T) {
 	}
 	if codex.Path != realCodex {
 		t.Fatalf("Detect codex path = %q, want real binary %q", codex.Path, realCodex)
+	}
+}
+
+func TestDetectSkipsNonExecutableFiles(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows executable detection is extension based")
+	}
+	binDir := t.TempDir()
+	codexPath := filepath.Join(binDir, "codex")
+	if err := os.WriteFile(codexPath, []byte("#!/bin/sh\n"), 0o644); err != nil {
+		t.Fatalf("write non-executable codex: %v", err)
+	}
+
+	t.Setenv("PATH", binDir)
+	var codex Detection
+	for _, detection := range Detect() {
+		if detection.Tool.ID == Codex {
+			codex = detection
+			break
+		}
+	}
+	if codex.Installed {
+		t.Fatalf("Detect reported non-executable file as installed: %q", codex.Path)
+	}
+}
+
+func TestWindowsPathExtsNormalizesAndDeduplicates(t *testing.T) {
+	t.Setenv("PATHEXT", ".EXE;.CMD;BAT;.exe;;")
+	got := windowsPathExts()
+	want := []string{".EXE", ".CMD", ".BAT"}
+	if len(got) != len(want) {
+		t.Fatalf("windowsPathExts length = %d, want %d: %#v", len(got), len(want), got)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("windowsPathExts[%d] = %q, want %q; got %#v", i, got[i], want[i], got)
+		}
 	}
 }
 

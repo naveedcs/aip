@@ -1,5 +1,6 @@
 .worktrees/
 /aip
+/dist/
 *.test
 
 # Keep repository Markdown limited to the root README.

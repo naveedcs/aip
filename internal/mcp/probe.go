@@ -9,8 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"syscall"
-	"time"
 
 	"github.com/naveedcs/aip/internal/profile"
 )
@@ -34,7 +32,7 @@ func Probe(ctx context.Context, server profile.MCPServer, env map[string]string,
 	cmd := exec.CommandContext(ctx, server.Command, server.Args...)
 	cmd.Env = mergedEnv(env)
 	cmd.Stderr = io.Discard
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.SysProcAttr = probeSysProcAttr()
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
@@ -52,41 +50,6 @@ func Probe(ctx context.Context, server profile.MCPServer, env map[string]string,
 	}()
 
 	return Handshake(ctx, stdin, stdout, client)
-}
-
-func cleanupProcessGroup(cmd *exec.Cmd, stdin io.Closer, stdout io.Closer) {
-	_ = stdin.Close()
-	_ = stdout.Close()
-	if cmd.Process == nil {
-		return
-	}
-	pgid := cmd.Process.Pid
-	_ = syscall.Kill(-pgid, syscall.SIGTERM)
-
-	done := make(chan struct{})
-	go func() {
-		_ = cmd.Wait()
-		close(done)
-	}()
-
-	grace := time.NewTimer(200 * time.Millisecond)
-	defer grace.Stop()
-
-	select {
-	case <-done:
-		if processGroupExists(pgid) {
-			<-grace.C
-			_ = syscall.Kill(-pgid, syscall.SIGKILL)
-		}
-	case <-grace.C:
-		_ = syscall.Kill(-pgid, syscall.SIGKILL)
-		<-done
-	}
-}
-
-func processGroupExists(pgid int) bool {
-	err := syscall.Kill(-pgid, 0)
-	return err == nil || err == syscall.EPERM
 }
 
 func mergedEnv(env map[string]string) []string {

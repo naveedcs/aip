@@ -60,6 +60,28 @@ From a checkout:
 go build -o aip ./cmd/aip
 ```
 
+Homebrew, after the tap is published:
+
+```bash
+brew tap naveedcs/aip
+brew install aip
+```
+
+Debian/Ubuntu, from a release `.deb`:
+
+```bash
+VERSION=v0.1.1
+ARCH=amd64
+curl -LO "https://github.com/naveedcs/aip/releases/download/${VERSION}/aip_${VERSION#v}_linux_${ARCH}.deb"
+sudo apt install "./aip_${VERSION#v}_linux_${ARCH}.deb"
+```
+
+Windows, after the winget manifest is accepted:
+
+```powershell
+winget install NaveedCS.AIP
+```
+
 ## First profile
 
 ```bash
@@ -312,6 +334,16 @@ go test -count=1 ./...
 go vet ./...
 go build -o aip ./cmd/aip
 ```
+
+Publish a release by pushing a version tag:
+
+```bash
+git tag -a v0.1.1 -m "v0.1.1"
+git push origin v0.1.1
+```
+
+The release workflow builds macOS, Linux, and Windows archives plus `.deb` and
+`.rpm` packages.
 
 ## License
 

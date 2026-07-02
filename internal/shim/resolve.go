@@ -5,10 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"syscall"
 )
-
-const executableAccess = 0x1
 
 func ResolveReal(binary, shimDir string) (string, error) {
 	shimKey := canonicalDir(shimDir)
@@ -22,23 +19,25 @@ func ResolveReal(binary, shimDir string) (string, error) {
 			continue
 		}
 
-		candidate := filepath.Join(cleanDir, binary)
-		info, err := os.Stat(candidate)
-		if err != nil {
-			continue
-		}
-		if info.IsDir() || syscall.Access(candidate, executableAccess) != nil {
-			continue
-		}
-		if isGeneratedAIPShim(candidate, binary) {
-			continue
-		}
+		for _, name := range executableCandidateNames(binary) {
+			candidate := filepath.Join(cleanDir, name)
+			info, err := os.Stat(candidate)
+			if err != nil {
+				continue
+			}
+			if !isExecutableFile(candidate, info) {
+				continue
+			}
+			if isGeneratedAIPShim(candidate, binary) {
+				continue
+			}
 
-		abs, err := filepath.Abs(candidate)
-		if err != nil {
-			return "", err
+			abs, err := filepath.Abs(candidate)
+			if err != nil {
+				return "", err
+			}
+			return abs, nil
 		}
-		return abs, nil
 	}
 
 	return "", fmt.Errorf("%q not found outside the aip shim directory", binary)

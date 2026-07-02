@@ -1,0 +1,58 @@
+version: 2
+
+project_name: aip
+
+builds:
+  - id: aip
+    main: ./cmd/aip
+    binary: aip
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X github.com/naveedcs/aip/internal/cli.Version={{ .Version }}
+
+archives:
+  - id: aip
+    ids:
+      - aip
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: checksums.txt
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+nfpms:
+  - id: aip
+    ids:
+      - aip
+    package_name: aip
+    file_name_template: "{{ .PackageName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    vendor: NaveedCS
+    homepage: https://github.com/naveedcs/aip
+    maintainer: Naveed Ahmad <naveedcs@users.noreply.github.com>
+    description: AI profile manager for isolating CLI accounts, credentials, MCP servers, instructions, and project folders.
+    license: MIT
+    section: utils
+    priority: optional
+    bindir: /usr/bin
+    formats:
+      - deb
+      - rpm

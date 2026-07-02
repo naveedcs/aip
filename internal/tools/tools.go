@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
-	"syscall"
+	"runtime"
+	"strings"
 )
 
 type ID string
@@ -82,24 +83,62 @@ func findRealExecutable(tool Tool) (string, bool) {
 			dir = "."
 		}
 
-		candidate := filepath.Join(filepath.Clean(dir), tool.Binary)
-		info, err := os.Stat(candidate)
-		if err != nil {
-			continue
+		for _, name := range executableCandidateNames(tool.Binary) {
+			candidate := filepath.Join(filepath.Clean(dir), name)
+			info, err := os.Stat(candidate)
+			if err != nil {
+				continue
+			}
+			if !isExecutableFile(candidate, info) {
+				continue
+			}
+			if isGeneratedAIPShim(candidate, string(tool.ID)) {
+				continue
+			}
+			abs, err := filepath.Abs(candidate)
+			if err != nil {
+				return "", false
+			}
+			return abs, true
 		}
-		if info.IsDir() || syscall.Access(candidate, 0x1) != nil {
-			continue
-		}
-		if isGeneratedAIPShim(candidate, string(tool.ID)) {
-			continue
-		}
-		abs, err := filepath.Abs(candidate)
-		if err != nil {
-			return "", false
-		}
-		return abs, true
 	}
 	return "", false
+}
+
+func executableCandidateNames(binary string) []string {
+	if runtime.GOOS != "windows" || filepath.Ext(binary) != "" {
+		return []string{binary}
+	}
+	names := []string{binary}
+	for _, ext := range windowsPathExts() {
+		names = append(names, binary+ext)
+	}
+	return names
+}
+
+func windowsPathExts() []string {
+	raw := os.Getenv("PATHEXT")
+	if strings.TrimSpace(raw) == "" {
+		raw = ".COM;.EXE;.BAT;.CMD"
+	}
+	seen := map[string]bool{}
+	exts := []string{}
+	for _, ext := range strings.Split(raw, ";") {
+		ext = strings.TrimSpace(ext)
+		if ext == "" {
+			continue
+		}
+		if !strings.HasPrefix(ext, ".") {
+			ext = "." + ext
+		}
+		key := strings.ToLower(ext)
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+		exts = append(exts, ext)
+	}
+	return exts
 }
 
 func isGeneratedAIPShim(path, toolID string) bool {
